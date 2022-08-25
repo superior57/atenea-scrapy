@@ -17,7 +17,7 @@ RUN apt-get update && \
 
 # Copy function code
 RUN mkdir -p ${FUNCTION_DIR}
-COPY myFunction/* ${FUNCTION_DIR}
+COPY . ${FUNCTION_DIR}
 
 WORKDIR ${FUNCTION_DIR}
 

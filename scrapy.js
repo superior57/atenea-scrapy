@@ -198,19 +198,19 @@ async function startBrowser(options) {
   try {
     console.log("Opening the browser......");
 
-    const chrome = await getChrome();
+    // const chrome = await getChrome();
 
-    browser = await puppeteer.connect({
-      browserWSEndpoint: chrome.endpoint,
-      defaultViewport: { width: 1300, height: 900 },
-    });
-
-    // browser = await puppeteer.launch({
-    //   headless: false,
-    //   args: [`--window-size=${1300},${900}`],
-    //   ignoreHTTPSErrors: true,
+    // browser = await puppeteer.connect({
+    //   browserWSEndpoint: chrome.endpoint,
     //   defaultViewport: { width: 1300, height: 900 },
     // });
+
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [`--window-size=${1300},${900}`],
+      ignoreHTTPSErrors: true,
+      defaultViewport: { width: 1300, height: 900 },
+    });
 
     var [page] = await browser.pages();
 

@@ -25,5 +25,3 @@ exports.handler = async (event = defaultEvent) => {
   };
   return response;
 };
-
-this.handler();

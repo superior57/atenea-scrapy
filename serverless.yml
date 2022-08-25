@@ -1,0 +1,9 @@
+service: jb-recommendation
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+	
+package:
+  exclude:
+    - node_modules/puppeteer/.local-chromium/**

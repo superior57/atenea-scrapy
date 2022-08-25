@@ -12,5 +12,3 @@ ENV LAMBDA_TASK_ROOT=/var/task
 ENV LAMBDA_RUNTIME_DIR=/var/runtime
 
 WORKDIR /atenea-scrapy-app
-
-ENTRYPOINT ["/lambda-entrypoint.sh"]

@@ -4,10 +4,5 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@serverless-chrome/lambda": "^1.0.0-57.2",
-    "chrome-launcher": "^0.15.1",
-    "puppeteer": "^16.2.0",
-    "serverless-offline": "^9.2.6",
-    "superagent": "^8.0.0"
   }
 }

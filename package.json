@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "aws-lambda-ric": "1.1.0"
+    "aws-lambda-ric": "1.1.0",
+    "puppeteer": "^16.1.1"
   }
 }

@@ -1,6 +1,11 @@
+const { startScrap } = require("./scrapy");
 
 exports.handler = async (event) => {
-  const data = event;
+  // TODO implement
+
+  const data = await startScrap(event);
+
+  console.log(data);
 
   const response = {
     statusCode: 200,

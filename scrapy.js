@@ -1,6 +1,6 @@
 const path = require("path");
-const puppeteer = require("puppeteer");
 const fs = require("fs");
+const { getBrowser } = require('./chrome-script');
 
 const paths = {
   login:
@@ -197,19 +197,7 @@ async function startBrowser(options) {
   try {
     console.log("Opening the browser......");
 
-    // const chrome = await getChrome();
-
-    // browser = await puppeteer.connect({
-    //   browserWSEndpoint: chrome.endpoint,
-    //   defaultViewport: { width: 1300, height: 900 },
-    // });
-
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [`--window-size=${1300},${900}`],
-      ignoreHTTPSErrors: true,
-      defaultViewport: { width: 1300, height: 900 },
-    });
+    browser = await getBrowser();
 
     var [page] = await browser.pages();
 
@@ -323,7 +311,7 @@ async function startBrowser(options) {
 exports.startScrap = async (event) => {
   const options = event.input;
 
-  await initDirectories();
+  // await initDirectories();
   const { status } = await startBrowser(options);
   const { jsonresponse, screenshotBase64 } = await getDatasFromDirectory();
 

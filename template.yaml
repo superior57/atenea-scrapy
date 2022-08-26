@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: lambda_chrome_in_docker_research
+
+Globals:
+  Function:
+    Timeout: 200
+
+Resources:
+  LambdaExecutorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      FunctionName: atenea-scrapy-function
+      ImageUri: 499154085319.dkr.ecr.us-east-1.amazonaws.com/atenea-scrapy:latest
+      MemorySize: 2048
+      Tracing: Active

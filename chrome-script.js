@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 
-exports.getBrowser = async () => {puppeteer
+exports.getBrowser = async () => {
     let browser = await puppeteer.launch({
       // executablePath: '/usr/bin/chromium',
       dumpio: true,

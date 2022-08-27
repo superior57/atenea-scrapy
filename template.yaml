@@ -15,3 +15,7 @@ Resources:
       ImageUri: 499154085319.dkr.ecr.us-east-1.amazonaws.com/atenea-scrapy:latest
       MemorySize: 2048
       Tracing: Active
+      Role: arn:aws:iam::499154085319:role/lambda-role
+    Metadata:
+      DockerContext: ./
+      Dockerfile: Dockerfile

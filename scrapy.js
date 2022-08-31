@@ -7,8 +7,8 @@ const paths = {
     "https://memsim.cenace.gob.mx/Entrenamiento/Participantes/LOGIN/Default.aspx",
   oferta:
     "https://memsim.cenace.gob.mx/Entrenamiento/Participantes/OFERTAS/EstadoDeLasOfertas.aspx",
-  screenshot: "./screenshot",
-  download: "./download",
+  screenshot: "/tmp/screenshot",
+  download: "/tmp/download",
 };
 
 const browserConfig = {
@@ -208,7 +208,8 @@ async function startBrowser(options) {
     await page.setUserAgent(
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
     );
-
+    
+    console.log("going to the login page......");
     await page.goto(paths.login, browserConfig);
     await waitForLoad;
 
@@ -311,7 +312,7 @@ async function startBrowser(options) {
 exports.startScrap = async (event) => {
   const options = event.input;
 
-  // await initDirectories();
+  await initDirectories();
   const { status } = await startBrowser(options);
   const { jsonresponse, screenshotBase64 } = await getDatasFromDirectory();
 

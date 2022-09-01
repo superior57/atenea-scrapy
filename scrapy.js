@@ -37,8 +37,13 @@ const authByFile = async (page, options) => {
     await page.evaluate(() => document.querySelector("#btnEnviar").click());
 
     await page.waitForSelector("#txtUsuario");
+
+    return;
   } catch (error) {
-    throw new Error("An error occured while attempting login by credentials. Error: " + error.message);
+    throw new Error(
+      "An error occured while attempting login by credentials. Error: " +
+        error.message
+    );
   }
 };
 
@@ -51,13 +56,16 @@ const authByUser = async (page, options) => {
     }, options);
 
     // sleep 1
-
     await page.evaluate((options) => {
       document.querySelector("#Button1").click();
     }, options);
 
+    return;
   } catch (error) {
-    throw new Error("An error occured while attempting login by username and password. Error: " + error.message);
+    throw new Error(
+      "An error occured while attempting login by username and password. Error: " +
+        error.message
+    );
   }
 };
 
@@ -101,8 +109,13 @@ const searchData = async (page, options) => {
 
     await page.keyboard.press("Enter");
     await page.waitForSelector(tableBodySelector, browserConfig);
-  } catch (error) {    
-    throw new Error("An error occured while getting data in oferta table. Error: " + error.message);
+
+    return;
+  } catch (error) {
+    throw new Error(
+      "An error occured while getting data in oferta table. Error: " +
+        error.message
+    );
   }
 };
 
@@ -114,8 +127,12 @@ const screenshotPage = async (page) => {
     await page.screenshot({
       path: screenshotPath,
     });
+
+    return;
   } catch (error) {
-    throw new Error("An error occured while taking screenshot. Error: " + error.message);
+    throw new Error(
+      "An error occured while taking screenshot. Error: " + error.message
+    );
   }
 };
 
@@ -149,8 +166,12 @@ const initDirectories = async () => {
       fs.mkdirSync(paths.screenshot);
       console.log("created screenshot directory");
     }
+
+    return;
   } catch (error) {
-    throw new Error("An error occured while initing directories. Error: " + error.message);
+    throw new Error(
+      "An error occured while initing directories. Error: " + error.message
+    );
   }
 };
 
@@ -177,8 +198,13 @@ const generateCertsFromBase64 = async (options) => {
       encoding: "base64",
     });
     fs.writeFileSync(paths.key, options.key, { encoding: "base64" });
+
+    return;
   } catch (error) {
-    throw new Error("An error occured while generating certifcation files from base64 inputs. Error: " + error.message);
+    throw new Error(
+      "An error occured while generating certifcation files from base64 inputs. Error: " +
+        error.message
+    );
   }
 };
 
@@ -213,7 +239,10 @@ const getDatasFromDirectory = async () => {
 
     return result;
   } catch (error) {
-    throw new Error("An error occured while getting data from JSON and Image files. Error: " + error.message);
+    throw new Error(
+      "An error occured while getting data from JSON and Image files. Error: " +
+        error.message
+    );
   }
 };
 
@@ -239,7 +268,6 @@ async function startBrowser(options) {
     console.log("going to login page......");
     await page.goto(paths.login, browserConfig);
     await waitForLoad;
-
 
     // File authentication
     console.log("attempting to login by credentials");

@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { getBrowser } = require('./chrome-script');
+const { getBrowser } = require("./chrome-script");
 
 const paths = {
   login:
@@ -9,6 +9,8 @@ const paths = {
     "https://memsim.cenace.gob.mx/Entrenamiento/Participantes/OFERTAS/EstadoDeLasOfertas.aspx",
   screenshot: "/tmp/screenshot",
   download: "/tmp/download",
+  certificate: "/tmp/certs/cert.cer",
+  key: "/tmp/certs/cert.key",
 };
 
 const browserConfig = {
@@ -24,49 +26,53 @@ const sleepTime = (time) => {
 };
 
 //
-const authByFile = (page, options) => {
-  return new Promise(async (resolve) => {
+const authByFile = async (page, options) => {
+  try {
     const inputCert = await page.$("#uploadCerfile0");
     const inputKey = await page.$("#uploadKeyfile0");
 
-    inputCert.uploadFile(options.certificate);
-    inputKey.uploadFile(options.key);
+    inputCert.uploadFile(paths.certificate);
+    inputKey.uploadFile(paths.key);
 
     await page.evaluate((options) => {
       document.querySelector("#txtPrivateKey").value = options.contrasena;
     }, options);
 
-    await sleepTime(3);
+    // await sleepTime(3);
 
     await page.evaluate((options) => {
       document.querySelector("#btnEnviar").click();
     }, options);
 
-    resolve();
-  });
+    return Promise.resolve();
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
 //
-const authByUser = (page, options) => {
-  return new Promise(async (resolve) => {
+const authByUser = async (page, options) => {
+  try {
     await page.evaluate((options) => {
       document.querySelector("#txtUsuario").value = options.username;
       document.querySelector("#txtPassword").value = options.password;
     }, options);
 
-    await sleepTime(1);
+    // await sleepTime(1);
 
     await page.evaluate((options) => {
       document.querySelector("#Button1").click();
     }, options);
 
-    resolve();
-  });
+    return Promise.resolve();
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
 //
-const searchData = (page, options) => {
-  return new Promise(async (resolve) => {
+const searchData = async (page, options) => {
+  try {
     const tableBodySelector = "#RadGrid1_ctl00 > tbody";
     console.log("Entering operating date filter...");
 
@@ -105,21 +111,25 @@ const searchData = (page, options) => {
     await page.keyboard.press("Enter");
     await page.waitForSelector(tableBodySelector, browserConfig);
 
-    resolve();
-  });
+    return Promise.resolve();
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
 //
-const screenshotPage = (page) => {
-  return new Promise(async (resolve) => {
+const screenshotPage = async (page) => {
+  try {
     const screenshotPath = path.resolve(paths.screenshot, "screenshot.png");
 
     await page.screenshot({
       path: screenshotPath,
     });
 
-    resolve();
-  });
+    return Promise.resolve();
+  } catch (error) {
+    return Promise.reject(error);
+  }
 };
 
 //
@@ -160,40 +170,74 @@ const initDirectories = async () => {
 };
 
 //
-const getDatasFromDirectory = () => {
-  var result = {};
-  // downloaded file
-  var file_name = fs.readdirSync(paths.download)[0];
-  if (file_name) {
-    const file_dir = path.resolve(paths.download, file_name);
+const generateCertsFromBase64 = async (options) => {
+  try {
+    // make directory for certificate files
+    if (fs.existsSync(paths.certificate)) {
+      fs.unlinkSync(paths.certificate);
+      fs.unlinkSync(paths.key);
+    } else {
+      let certificateDirectory = paths.certificate.split("/");
+      certificateDirectory.splice(-1, 1);
+      certificateDirectory = certificateDirectory.join("/");
+      fs.mkdirSync(certificateDirectory, { recursive: true });
 
-    const str_file = fs.readFileSync(file_dir, { encoding: "utf-8" });
-    const obj_file = JSON.parse(str_file);
+      let keyDirectory = paths.key.split("/");
+      keyDirectory.splice(-1, 1);
+      keyDirectory = keyDirectory.join("/");
+      fs.mkdirSync(keyDirectory, { recursive: true });
+    }
 
-    result.jsonresponse = { ...obj_file };
-  } else {
-    console.error("Downloaded file does not exist");
+    fs.writeFileSync(paths.certificate, options.certificate, {
+      encoding: "base64",
+    });
+    fs.writeFileSync(paths.key, options.key, { encoding: "base64" });
+
+    return Promise.resolve();
+  } catch (error) {
+    return Promise.reject(error);
   }
+};
 
-  // screenshot file
-  file_name = fs.readdirSync(paths.screenshot)[0];
-  if (file_name) {
-    const file_dir = path.resolve(paths.screenshot, file_name);
+//
+const getDatasFromDirectory = async () => {
+  try {
+    var result = {};
+    // downloaded file
+    var file_name = fs.readdirSync(paths.download)[0];
+    if (file_name) {
+      const file_dir = path.resolve(paths.download, file_name);
 
-    const file = fs.readFileSync(file_dir, { encoding: "base64" });
+      const str_file = fs.readFileSync(file_dir, { encoding: "utf-8" });
+      const obj_file = JSON.parse(str_file);
 
-    result.screenshotBase64 = file;
-  } else {
-    console.error("Screenshot file does not exist");
+      result.jsonresponse = { ...obj_file };
+    } else {
+      console.error("Downloaded file does not exist");
+    }
+
+    // screenshot file
+    file_name = fs.readdirSync(paths.screenshot)[0];
+    if (file_name) {
+      const file_dir = path.resolve(paths.screenshot, file_name);
+
+      const file = fs.readFileSync(file_dir, { encoding: "base64" });
+
+      result.screenshotBase64 = file;
+    } else {
+      console.error("Screenshot file does not exist");
+    }
+
+    return Promise.resolve(result);
+  } catch (error) {
+    return Promise.reject(error);
   }
-
-  return result;
 };
 
 // --------------------------------------------------
 
 async function startBrowser(options) {
-  let browser;
+  let browser, popup;
   try {
     console.log("Opening the browser......");
 
@@ -208,7 +252,7 @@ async function startBrowser(options) {
     await page.setUserAgent(
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
     );
-    
+
     console.log("going to the login page......");
     await page.goto(paths.login, browserConfig);
     await waitForLoad;
@@ -231,7 +275,7 @@ async function startBrowser(options) {
     // });
     // await waitForLoad;
 
-    await sleepTime(1);
+    // await sleepTime(1);
 
     // Go to form table
     console.log("Opening the oferta table page...");
@@ -240,7 +284,7 @@ async function startBrowser(options) {
 
     // search data by filters...
     await searchData(page, options);
-    sleepTime(2);
+    // sleepTime(2);
     console.log("Table data is ready!");
 
     // Collecting data from first row
@@ -269,7 +313,7 @@ async function startBrowser(options) {
       }
     });
 
-    await sleepTime(3);
+    // await sleepTime(3);
 
     // Opening popup
     console.log("Opening popup...");
@@ -289,7 +333,7 @@ async function startBrowser(options) {
     const newPagePromise = new Promise((resolve) =>
       browser.once("targetcreated", (target) => resolve(target.page()))
     );
-    const popup = await newPagePromise;
+    popup = await newPagePromise;
     await popup.waitForSelector("#FieldSet1");
     console.log("loaded popup");
 
@@ -297,32 +341,49 @@ async function startBrowser(options) {
     console.log("Taking a screenshot");
     await screenshotPage(popup);
 
-    // Close
-    await popup.close();
-    await browser.close();
-
     return Promise.resolve(result);
   } catch (err) {
-    console.error("Could not create a browser instance => : ", err);
+    return Promise.reject(err);
+  } finally {
+    // Close
+    if (popup) await popup.close();
+    if (browser) await browser.close();
   }
-  return browser;
 }
 
 //
 exports.startScrap = async (event) => {
   const options = event.input;
 
-  await initDirectories();
-  const { status } = await startBrowser(options);
-  const { jsonresponse, screenshotBase64 } = await getDatasFromDirectory();
+  try {
+    console.log("generating certification files from base64...");
+    await generateCertsFromBase64(options);
+    await initDirectories();
+    const { status = "NODATA" } = await startBrowser(options);
+    const { jsonresponse = {}, screenshotBase64 } =
+      await getDatasFromDirectory();
 
-  const data = {
-    output: {
-      status,
-      jsonresponse,
-      screenshotBase64: "data:image/png;base64, " + screenshotBase64,
-    },
-  };
+    const data = {
+      output: {
+        status: status,
+        jsonresponse,
+        screenshotBase64: screenshotBase64
+          ? "data:image/png;base64, " + screenshotBase64
+          : "",
+      },
+    };
 
-  return data;
+    return data;
+  } catch (error) {
+    console.error(error);
+
+    const data = {
+      output: {
+        status: "ERROR",
+        jsonresponse: {},
+        screenshotBase64: "",
+      },
+    };
+    return data;
+  }
 };

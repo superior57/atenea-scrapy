@@ -36,9 +36,9 @@ const authByFile = async (page, options) => {
     await page.waitForTimeout(1000);
     await page.evaluate(() => document.querySelector("#btnEnviar").click());
 
-    return Promise.resolve();
+    await page.waitForSelector("#txtUsuario");
   } catch (error) {
-    return Promise.reject(error);
+    throw new Error("An error occured while attempting login by credentials. Error: " + error.message);
   }
 };
 
@@ -56,9 +56,8 @@ const authByUser = async (page, options) => {
       document.querySelector("#Button1").click();
     }, options);
 
-    return Promise.resolve();
   } catch (error) {
-    return Promise.reject(error);
+    throw new Error("An error occured while attempting login by username and password. Error: " + error.message);
   }
 };
 
@@ -102,10 +101,8 @@ const searchData = async (page, options) => {
 
     await page.keyboard.press("Enter");
     await page.waitForSelector(tableBodySelector, browserConfig);
-
-    return Promise.resolve();
-  } catch (error) {
-    return Promise.reject(error);
+  } catch (error) {    
+    throw new Error("An error occured while getting data in oferta table. Error: " + error.message);
   }
 };
 
@@ -117,10 +114,8 @@ const screenshotPage = async (page) => {
     await page.screenshot({
       path: screenshotPath,
     });
-
-    return Promise.resolve();
   } catch (error) {
-    return Promise.reject(error);
+    throw new Error("An error occured while taking screenshot. Error: " + error.message);
   }
 };
 
@@ -154,10 +149,8 @@ const initDirectories = async () => {
       fs.mkdirSync(paths.screenshot);
       console.log("created screenshot directory");
     }
-
-    return Promise.resolve();
   } catch (error) {
-    return Promise.reject(error);
+    throw new Error("An error occured while initing directories. Error: " + error.message);
   }
 };
 
@@ -184,10 +177,8 @@ const generateCertsFromBase64 = async (options) => {
       encoding: "base64",
     });
     fs.writeFileSync(paths.key, options.key, { encoding: "base64" });
-
-    return Promise.resolve();
   } catch (error) {
-    return Promise.reject(error);
+    throw new Error("An error occured while generating certifcation files from base64 inputs. Error: " + error.message);
   }
 };
 
@@ -220,9 +211,9 @@ const getDatasFromDirectory = async () => {
       console.error("Screenshot file does not exist");
     }
 
-    return Promise.resolve(result);
+    return result;
   } catch (error) {
-    return Promise.reject(error);
+    throw new Error("An error occured while getting data from JSON and Image files. Error: " + error.message);
   }
 };
 
@@ -249,6 +240,7 @@ async function startBrowser(options) {
     await page.goto(paths.login, browserConfig);
     await waitForLoad;
 
+
     // File authentication
     console.log("attempting to login by credentials");
     await authByFile(page, options);
@@ -258,13 +250,10 @@ async function startBrowser(options) {
     await waitForLoad;
 
     // User/Password Authentication
-    console.log("waiting user auth page loaded...");
-    const input_user = await page.waitForSelector("#txtUsuario");
-    console.log(input_user);
     console.log("attempting to login by user/pass");
     await authByUser(page, options);
 
-    console.log("waiting for authentication's success")
+    console.log("waiting for authentication's success");
     await page.waitForNavigation(browserConfig);
     await waitForLoad;
 
@@ -332,9 +321,7 @@ async function startBrowser(options) {
     console.log("Taking a screenshot");
     await screenshotPage(popup);
 
-    return Promise.resolve(result);
-  } catch (err) {
-    return Promise.reject(err);
+    return result;
   } finally {
     // Close
     if (popup) await popup.close();
@@ -366,7 +353,7 @@ exports.startScrap = async (event) => {
 
     return data;
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     const data = {
       output: {

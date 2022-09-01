@@ -21,28 +21,20 @@ const browserConfig = {
 // --------------------------------------------------
 
 //
-const sleepTime = (time) => {
-  return new Promise((resolve) => setTimeout(resolve, time * 1000));
-};
-
-//
 const authByFile = async (page, options) => {
   try {
     const inputCert = await page.$("#uploadCerfile0");
     const inputKey = await page.$("#uploadKeyfile0");
 
-    inputCert.uploadFile(paths.certificate);
-    inputKey.uploadFile(paths.key);
+    await inputCert.uploadFile(paths.certificate);
+    await inputKey.uploadFile(paths.key);
 
     await page.evaluate((options) => {
       document.querySelector("#txtPrivateKey").value = options.contrasena;
     }, options);
 
-    // await sleepTime(3);
-
-    await page.evaluate((options) => {
-      document.querySelector("#btnEnviar").click();
-    }, options);
+    await page.waitForTimeout(1000);
+    await page.evaluate(() => document.querySelector("#btnEnviar").click());
 
     return Promise.resolve();
   } catch (error) {
@@ -58,7 +50,7 @@ const authByUser = async (page, options) => {
       document.querySelector("#txtPassword").value = options.password;
     }, options);
 
-    // await sleepTime(1);
+    // sleep 1
 
     await page.evaluate((options) => {
       document.querySelector("#Button1").click();
@@ -253,7 +245,7 @@ async function startBrowser(options) {
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
     );
 
-    console.log("going to the login page......");
+    console.log("going to login page......");
     await page.goto(paths.login, browserConfig);
     await waitForLoad;
 
@@ -266,25 +258,24 @@ async function startBrowser(options) {
     await waitForLoad;
 
     // User/Password Authentication
+    console.log("waiting user auth page loaded...");
+    const input_user = await page.waitForSelector("#txtUsuario");
+    console.log(input_user);
     console.log("attempting to login by user/pass");
     await authByUser(page, options);
 
-    // await page.waitForNavigation({
-    //   waitUltil: "networkidle2",
-    //   timeout: 60000,
-    // });
-    // await waitForLoad;
-
-    // await sleepTime(1);
+    console.log("waiting for authentication's success")
+    await page.waitForNavigation(browserConfig);
+    await waitForLoad;
 
     // Go to form table
-    console.log("Opening the oferta table page...");
+    console.log("Opening oferta table page...");
     await page.goto(paths.oferta, browserConfig);
     await waitForLoad;
 
     // search data by filters...
     await searchData(page, options);
-    // sleepTime(2);
+    // sleep 2
     console.log("Table data is ready!");
 
     // Collecting data from first row
@@ -313,7 +304,7 @@ async function startBrowser(options) {
       }
     });
 
-    // await sleepTime(3);
+    // sleep 3
 
     // Opening popup
     console.log("Opening popup...");
@@ -346,8 +337,8 @@ async function startBrowser(options) {
     return Promise.reject(err);
   } finally {
     // Close
-    if (popup) await popup.close();
-    if (browser) await browser.close();
+    // if (popup) await popup.close();
+    // if (browser) await browser.close();
   }
 }
 

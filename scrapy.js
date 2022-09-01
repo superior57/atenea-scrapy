@@ -35,10 +35,6 @@ const authByFile = async (page, options) => {
 
     await page.waitForTimeout(1000);
     await page.evaluate(() => document.querySelector("#btnEnviar").click());
-
-    await page.waitForSelector("#txtUsuario");
-
-    return;
   } catch (error) {
     throw new Error(
       "An error occured while attempting login by credentials. Error: " +
@@ -50,6 +46,8 @@ const authByFile = async (page, options) => {
 //
 const authByUser = async (page, options) => {
   try {
+    await page.waitForSelector("#txtUsuario");
+
     await page.evaluate((options) => {
       document.querySelector("#txtUsuario").value = options.username;
       document.querySelector("#txtPassword").value = options.password;
@@ -59,8 +57,6 @@ const authByUser = async (page, options) => {
     await page.evaluate((options) => {
       document.querySelector("#Button1").click();
     }, options);
-
-    return;
   } catch (error) {
     throw new Error(
       "An error occured while attempting login by username and password. Error: " +
@@ -109,8 +105,6 @@ const searchData = async (page, options) => {
 
     await page.keyboard.press("Enter");
     await page.waitForSelector(tableBodySelector, browserConfig);
-
-    return;
   } catch (error) {
     throw new Error(
       "An error occured while getting data in oferta table. Error: " +
@@ -127,8 +121,6 @@ const screenshotPage = async (page) => {
     await page.screenshot({
       path: screenshotPath,
     });
-
-    return;
   } catch (error) {
     throw new Error(
       "An error occured while taking screenshot. Error: " + error.message
@@ -166,8 +158,6 @@ const initDirectories = async () => {
       fs.mkdirSync(paths.screenshot);
       console.log("created screenshot directory");
     }
-
-    return;
   } catch (error) {
     throw new Error(
       "An error occured while initing directories. Error: " + error.message
@@ -198,8 +188,6 @@ const generateCertsFromBase64 = async (options) => {
       encoding: "base64",
     });
     fs.writeFileSync(paths.key, options.key, { encoding: "base64" });
-
-    return;
   } catch (error) {
     throw new Error(
       "An error occured while generating certifcation files from base64 inputs. Error: " +

@@ -337,8 +337,8 @@ async function startBrowser(options) {
     return Promise.reject(err);
   } finally {
     // Close
-    // if (popup) await popup.close();
-    // if (browser) await browser.close();
+    if (popup) await popup.close();
+    if (browser) await browser.close();
   }
 }
 

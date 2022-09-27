@@ -4,13 +4,15 @@ const { getBrowser } = require("./chrome-script");
 
 const paths = {
   login:
-    "https://memsim.cenace.gob.mx/Entrenamiento/Participantes/LOGIN/Default.aspx",
+    "https://memsim.cenace.gob.mx/Produccion/Participantes/LOGIN/Default.aspx",
+  ofertaHome:
+    "https://memsim.cenace.gob.mx/Produccion/Participantes/OFERTAS/iframeOfertas.aspx",
   oferta:
-    "https://memsim.cenace.gob.mx/Entrenamiento/Participantes/OFERTAS/EstadoDeLasOfertas.aspx",
-  screenshot: "/tmp/screenshot",
-  download: "/tmp/download",
-  certificate: "/tmp/certs/cert.cer",
-  key: "/tmp/certs/cert.key",
+    "https://memsim.cenace.gob.mx/Produccion/Participantes/OFERTAS/EstadoDeLasOfertas.aspx",
+  screenshot: "/tmp/screenshot", // tmp/screenshot
+  download: "/tmp/download", // tmp/download
+  certificate: "/tmp/certs/cert.cer", // tmp/certs/cert.cer
+  key: "/tmp/certs/cert.key", // tmp/certs/cert.key
 };
 
 const browserConfig = {
@@ -79,7 +81,7 @@ const searchData = async (page, options) => {
         operatingDateFilter.value = options.operating_date;
         operatingDateFilter.focus();
 
-        document.querySelector(tableBodySelector).remove();
+        document.querySelector(tableBodySelector)?.remove();
       },
       options,
       tableBodySelector
@@ -270,6 +272,19 @@ async function startBrowser(options) {
     await authByUser(page, options);
 
     console.log("waiting for authentication's success");
+    await page.waitForNavigation(browserConfig);
+    await waitForLoad;
+
+    //go to ofertaHome page
+    console.log("go to ofertaHome page");
+    await page.goto(paths.ofertaHome, browserConfig);
+    await waitForLoad;
+    
+    // Click the oferta table iframe link
+    console.log("Click the oferta table iframe link...");
+    await page.evaluate((options) => {
+      document.querySelector("#linkEstadoDeLasOfertas").click();
+    }, options);
     await page.waitForNavigation(browserConfig);
     await waitForLoad;
 

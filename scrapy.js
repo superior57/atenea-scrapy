@@ -9,10 +9,10 @@ const paths = {
     "https://memsim.cenace.gob.mx/Produccion/Participantes/OFERTAS/iframeOfertas.aspx",
   oferta:
     "https://memsim.cenace.gob.mx/Produccion/Participantes/OFERTAS/EstadoDeLasOfertas.aspx",
-  screenshot: "/tmp/screenshot", // tmp/screenshot
-  download: "/tmp/download", // tmp/download
-  certificate: "/tmp/certs/cert.cer", // tmp/certs/cert.cer
-  key: "/tmp/certs/cert.key", // tmp/certs/cert.key
+  screenshot: "tmp/screenshot", // tmp/screenshot
+  download: "tmp/download", // tmp/download
+  certificate: "tmp/certs/cert.cer", // tmp/certs/cert.cer
+  key: "tmp/certs/cert.key", // tmp/certs/cert.key
 };
 
 const browserConfig = {
@@ -35,7 +35,7 @@ const authByFile = async (page, options) => {
       document.querySelector("#txtPrivateKey").value = options.contrasena;
     }, options);
 
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(3000);
     await page.evaluate(() => document.querySelector("#btnEnviar").click());
   } catch (error) {
     throw new Error(
